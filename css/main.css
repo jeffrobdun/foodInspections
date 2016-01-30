@@ -1,0 +1,112 @@
+@charset "utf-8";
+/* CSS Document */
+
+table{
+	width: 80%;
+	border-collapse: collapse;
+	margin-top: 20px;
+}
+
+td{
+	border-left: 1px solid black;
+	border-right: 1px solid black;
+}
+
+tr:nth-child(2n){
+	background-color: #E8EAF6;
+}
+
+tr:last-child{
+	border-bottom: 1px solid black;	
+}
+
+th{
+	background-color: #283593;
+	color: #FFF;
+	font-weight: normal;
+}
+
+body{
+	color: #1A237E;
+	font-family: Verdana;
+}
+
+form > span{
+	width: 100px;
+	display: inline-block;
+	margin-bottom: 10px;
+	
+}
+
+form{
+	float: left;
+}
+
+button{
+	 background-color: #1A237E;
+	 border: 0;
+	 box-shadow: none;
+	 color: #FFF;
+	 font-size: 20px;
+	 height: 50px;
+	 text-align: center;
+	 width: 200px;
+}
+
+#form > input[type=checkbox]{
+	display: none;
+}
+
+input[type=text]{
+	border-width: 0px 0px 1px 0px;
+	border-color: black;
+}
+
+select{
+	border-width: 0px 0px 1px 0px;
+	border-color: black;
+}
+
+input:focus {
+	outline: none; 
+}
+
+select:focus {
+	outline: none; 
+}
+
+.colourImage, .pdfPath{
+	text-align: center;
+}
+
+.checkbox{
+	width: 14px;
+	height: 14px;
+}
+
+.radio{
+	width: 14px;
+	height: 14px;
+	margin-left: 5px;
+}
+
+.top{
+	display: block;
+	height: 45%;
+}
+
+#legend{
+	font-size: 10px;
+	margin-left: 300px;
+}
+
+#legend span{
+	display: block;
+}
+
+/* #legend * img{
+	width: 30px;
+	height: 30px;
+}
+ */
+

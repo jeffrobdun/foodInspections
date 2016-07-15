@@ -1,3 +1,6 @@
+<?php
+require_once('../config/token.php');
+?>
 <head>
 	<script src="http://code.jquery.com/jquery-2.1.4.min.js" ></script>
 	<link href="css/main.css" rel="stylesheet">

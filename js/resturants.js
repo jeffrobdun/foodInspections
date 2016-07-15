@@ -8,11 +8,26 @@ $(document).ajaxStart(function(){
 	
 });
 
+var cookies = document.cookie;
+var cookieArray = cookies.split(';');
+var token = '';
+if(cookieArray.length == 1){
+	if(cookieArray[0].indexOf('nb_foodinspections') > -1){
+		token = cookieArray[0].split('=')[1];
+	}
+}else{
+	for(var i=0; i < cookieArray.length; i++){
+		if(cookieArray[i].indexOf('nb_foodinspections') > -1){
+			token = cookieArray[i].split('=')[1];
+		}
+	}
+}
+
 $("#getResturants").click(function(){
 	
 	$.ajax({
 		type: "POST",
-		url: endpointUrl,
+		url: endpointUrl + '?token=' + token,
 		statusCode: {
 		    404: function() {
 		    	alert( "page not found" );
@@ -104,22 +119,24 @@ function buildResturantTable(data, table){
 	var template = '';
 	var templateString = '';
 	
-	for(var i=0;i<data.length;i++){
-		tableString += '<tr>';
-		for(var j=0;j<tableHeaders.length;j++){
-			template = templates[$(tableHeaders[j]).attr('data-column') + 'Template'];
-			
-			if(template){
-				templateString = template.replace("{value}", data[i][$(tableHeaders[j]).attr('data-column')]);
-				tableString += '<td class="' + $(tableHeaders[j]).attr('data-column') + '">' + templateString + '</td>';
-			}else{
-				tableString += '<td class="' + $(tableHeaders[j]).attr('data-column') + '">' + data[i][$(tableHeaders[j]).attr('data-column')] + '</td>';
+	if(data.length > 0){
+		for(var i=0;i<data.length;i++){
+			tableString += '<tr>';
+			for(var j=0;j<tableHeaders.length;j++){
+				template = templates[$(tableHeaders[j]).attr('data-column') + 'Template'];
+
+				if(template){
+					templateString = template.replace("{value}", data[i][$(tableHeaders[j]).attr('data-column')]);
+					tableString += '<td class="' + $(tableHeaders[j]).attr('data-column') + '">' + templateString + '</td>';
+				}else{
+					tableString += '<td class="' + $(tableHeaders[j]).attr('data-column') + '">' + data[i][$(tableHeaders[j]).attr('data-column')] + '</td>';
+				}
 			}
+			tableString += '</tr>';
 		}
-		tableString += '</tr>';
+	}else{
+		tableString = '<tr><td colspan="' + tableHeaders.length + '">No Results</td></tr>';
 	}
-	
-	//http://www1.gnb.ca/0601/images/public_green.gif
 	
 	table.find('tbody').html(tableString);
 	

@@ -6,7 +6,7 @@
 
 //print phpinfo() . '<br/>';
 
-require('../config/config.php');
+require_once('../config/config.php');
 
 $letters = range('A','Z');
 $letters[] = '0';

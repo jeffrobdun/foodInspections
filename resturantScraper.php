@@ -33,9 +33,9 @@ if(!$result = $db->query('DELETE FROM establishments;')){
 			    print 'There was an error running the delete [' . $db->error . ']' . "\n";
 }
 
-if(!$result = $db->query('DELETE FROM pdfs;')){
-			    print 'There was an error running the delete [' . $db->error . ']' . "\n";
-}
+// if(!$result = $db->query('DELETE FROM pdfs;')){
+// 			    print 'There was an error running the delete [' . $db->error . ']' . "\n";
+// }
 
 // try{
 	foreach($letters as $letter){
@@ -45,64 +45,79 @@ if(!$result = $db->query('DELETE FROM pdfs;')){
 		$html = file_get_html($url);
 		$table = $html->find('table', 1);
 		$innerTable = $table->find('table[width]', 0);
-		$innerTable = $innerTable->find('table[width]', 4);
-			// 		$table1 = $table->find('table[width]', 0);
-			// print file_get_contents($url) . '<br/>';
-		
-		foreach($innerTable->find('tr') as $row){
-// 			print $row->outertext . '<br/>';
-// 			$tableCells = 
-			$resturantName = str_replace('&nbsp;', '', $row->find('td',0)->find("font", 0)->innertext);
-// 			print '<br/>resturantName: ' . $resturantName;
-			$address = str_replace('&nbsp;', '', $row->find('td',1)->find("font", 0)->innertext);
-			$addressArray = explode('<br/>', $address);
-// 			printf('<pre>%s</pre>',print_r($address, true));
-			$address = $addressArray[0];
-			$city = $addressArray[1];
-			$inspectionDate = str_replace('&nbsp;', '', $row->find('td',2)->find("font", 0)->innertext);
-			$colourImage = str_replace('&nbsp;', '', $row->find('td',3)->find('img', 0)->src);
-			$reinspectionDate = str_replace('&nbsp;', '', $row->find('td',4)->find("font", 0)->innertext);
-			$pdfPath = str_replace('&nbsp;', '', $row->find('td',5)->find("a", 0)->href); 
-			$pdf = file_get_contents($baseUrl . $pdfPath);			
+		if(isset($innerTable)){
+			$innerTable = $innerTable->find('table[width]', 4);
+				// 		$table1 = $table->find('table[width]', 0);
+				// print file_get_contents($url) . '<br/>';
 			
-			$insertResult = '';
-// 			foreach($tableCells as $cell){
-// 				print $cell->innertext . '<br/>';
-// 			}
-			
-			if(!empty($resturantName)){
+			foreach($innerTable->find('tr') as $row){
+	// 			print $row->outertext . '<br/>';
+	// 			$tableCells = f)
+				$resturantName = str_replace('&nbsp;', '', $row->find('td',0)->find("font", 0)->innertext);
+	// 			print '<br/>resturantName: ' . $resturantName;
+				$address = str_replace('&nbsp;', '', $row->find('td',1)->find("font", 0)->innertext);
+				$addressArray = explode('<br/>', $address);
+	// 			printf('<pre>%s</pre>',print_r($address, true));
+				$address = $addressArray[0];
+				$city = $addressArray[1];
+				$inspectionDate = str_replace('&nbsp;', '', $row->find('td',2)->find("font", 0)->innertext);
+				$colourImage = str_replace('&nbsp;', '', $row->find('td',3)->find('img', 0)->src);
+				$reinspectionDate = str_replace('&nbsp;', '', $row->find('td',4)->find("font", 0)->innertext);
+				$pdfPath = str_replace('&nbsp;', '', $row->find('td',5)->find("a", 0)->href); 
+				// $pdf = file_get_contents($baseUrl . $pdfPath);			
 				
-				if(!empty($pdf)){
-					$lastInsertId = 0;
-					$pdfName = explode('/', $pdfPath)[1];
-					$pdfName = explode('.', $pdfName)[0];
-					$insertStatement = 'INSERT INTO pdfs(name, file) 
+				$insertResult = '';
+	// 			foreach($tableCells as $cell){
+	// 				print $cell->innertext . '<br/>';
+	// 			}
+				
+				if(!empty($resturantName)){
+					
+					// if(!empty($pdf)){
+					// 	$lastInsertId = 0;
+					// 	$pdfName = explode('/', $pdfPath)[1];
+					// 	$pdfName = explode('.', $pdfName)[0];
+					// 	$insertStatement = 'INSERT INTO pdfs(name, file) 
+					// 						VALUES("' . 
+					// 						$db->real_escape_string($pdfName) . '", "' . 
+					// 						$db->real_escape_string(base128::encode($pdf)) . '");';
+
+					// 	$insertResult = $db->query($insertStatement);
+					// 	$lastInsertId = $db->insert_id;
+					// 	if(!$insertResult){
+					// 		print 'Unable to insert PDF into DB';
+					// 	}
+					// }
+					
+					$insertStatement = 'INSERT INTO establishments(name, address, city, inspectionDate, colourImage, reinspectionDate, pdfPath) 
 										VALUES("' . 
-										$db->real_escape_string($pdfName) . '", "' . 
-										$db->real_escape_string(base128::encode($pdf)) . '");';
+										$db->real_escape_string(html_entity_decode($resturantName)) . '", "' . 
+										$db->real_escape_string($address) . '", "' . 
+										$db->real_escape_string($city) . '", "' . $db->real_escape_string($inspectionDate) . '", "' . 
+										$db->real_escape_string($colourImage) . '", "' . $db->real_escape_string($reinspectionDate) . '", "' .	
+										$db->real_escape_string($pdfPath) . '");';
 
 					$insertResult = $db->query($insertStatement);
-					$lastInsertId = $db->insert_id;
+
 					if(!$insertResult){
-						print 'Unable to insert PDF into DB';
+						// print 'Insert statement: ' . $insertStatement . "<br/>\n";
+						print 'Error inserting into the DB ' .  $db->error . "<br/>\n";
 					}
-				}
-				
-				$insertStatement = 'INSERT INTO establishments(name, address, city, inspectionDate, colourImage, reinspectionDate, pdfId) 
+
+					$historyInsertStatement = 'INSERT INTO establishmentHistory(name, address, city, inspectionDate, colourImage, reinspectionDate, pdfPath) 
 									VALUES("' . 
-									$db->real_escape_string(html_entity_decode($resturantName)) . '", "' . 
+									$db->real_escape_string($resturantName) . '", "' . 
 									$db->real_escape_string($address) . '", "' . 
 									$db->real_escape_string($city) . '", "' . $db->real_escape_string($inspectionDate) . '", "' . 
-									$db->real_escape_string($colourImage) . '", "' . $db->real_escape_string($reinspectionDate) . '", ' .	
-									$db->real_escape_string($lastInsertId) . ');';
-
-				$insertResult = $db->query($insertStatement);
-			}
-
-			if(!$insertResult){
-				print 'Error inserting into th DB ' .  $db->error . "<br/>\n";
-			}else{
-				print 'Inserted 1 row successfully<br/>' . "\n";
+									$db->real_escape_string($colourImage) . '", "' . $db->real_escape_string($reinspectionDate) . '", "' .	
+									$db->real_escape_string($pdfPath) . '");';
+									
+					$historyInsertResult = $db->query($historyInsertStatement);
+						
+					if(!$historyInsertResult){
+						// print 'Insert statement: ' . $insertStatement . "<br/>\n";
+						print 'Error inserting into the DB ' .  $db->error . "<br/>\n";
+					}
 			}
 		}
 		
@@ -127,6 +142,33 @@ if(!$result = $db->query('DELETE FROM pdfs;')){
 // for($i=0;$i<count($completeResults);$i++){
 // 	json_encode($completeResults[0]);
 // }
+
+$selectDistinct = 'SELECT DISTINCT inspectionDate, name, address, city FROM establishmentHistory;';
+
+$selectResult = $db->query($selectDistinct);
+
+$resultsArray = array();
+if($selectResult->num_rows > 0){
+	while($databaseResult = $selectResult->fetch_assoc()){
+		$resultsArray[] = $databaseResult;
+		$selectIds = 'SELECT id FROM establishmentHistory WHERE name = \'' . $db->real_escape_string($databaseResult['name']) . '\'
+									AND address = \'' . $db->real_escape_string($databaseResult['address']) . '\' 
+									AND city = \'' . $db->real_escape_string($databaseResult['city']) . '\'
+									AND inspectionDate = \'' . $db->real_escape_string($databaseResult['inspectionDate']) . '\'';
+		$selectIdResult = $db->query($selectIds);						
+		for($i=1; $i < $selectIdResult->num_rows; $i++){
+			$dbResult = $selectIdResult->fetch_assoc();
+			if($i != 1){
+				$deleteId .= ' OR id = ' . $dbResult['id'];
+			}else{
+				$deleteId = 'DELETE FROM establishmentHistory WHERE id = ' . $dbResult['id'];
+			}
+		}
+		$deleteId .= ';';
+		$deleteResult = $db->query($deleteId);
+	}
+}
+
 $db->close();
 
 // file_put_contents('scraper.log', $log, FILE_APPEND);

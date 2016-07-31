@@ -51,7 +51,7 @@ $("#getResturants").click(function(){
 $("#letter").change(function(){
 	$.ajax({
 		type: "POST",
-		url: endpointUrl,
+		url: endpointUrl + '?token=' + token,
 		statusCode: {
 		    404: function() {
 		    	alert( "page not found" );

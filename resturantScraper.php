@@ -5,9 +5,9 @@
 // http://www1.gnb.ca/0601/fseinspectresults.asp?curralpha=0
 
 //print phpinfo() . '<br/>';
-require_once('../config/config.php');
-require_once('../extensions/simple_html_dom.php');
-require_once('../extensions/base128.php');
+require_once(__DIR__ . '/../config/config.php');
+require_once(__DIR__ . '/../extensions/simple_html_dom.php');
+require_once(__DIR__ . '/../extensions/base128.php');
 
 ini_set('memory_limit', '-1');
 
@@ -100,6 +100,8 @@ if(!$result = $db->query('DELETE FROM establishments;')){
 $selectDistinct = 'SELECT DISTINCT inspectionDate, name, address, city FROM establishmentHistory;';
 
 $selectResult = $db->query($selectDistinct);
+
+$deleteId = "";
 
 $resultsArray = array();
 if($selectResult->num_rows > 0){

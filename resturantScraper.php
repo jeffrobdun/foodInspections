@@ -1,33 +1,23 @@
 <?php
 // $url = "http://www1.gnb.ca/0601/fseinspectresults.asp";
-
-
 // http://www1.gnb.ca/0601/fseinspectresults.asp?curralpha=0
-
 //print phpinfo() . '<br/>';
 require_once(__DIR__ . '/../config/config.php');
 require_once(__DIR__ . '/../extensions/simple_html_dom.php');
 require_once(__DIR__ . '/../extensions/base128.php');
-
 ini_set('memory_limit', '-1');
-
 $letters = range('A','Z');
 $letters[] = '0';
 $tables = array();
 $resturantList = array();
 $divs = array();
 $baseUrl = 'http://www1.gnb.ca/0601/';
-
 $count = 0;
-
 print 'Started on ' . date('d/m/y') . "\n";
 $db = new mysqli(DB_SERVER, DB_USER, DB_PASS, DB_NAME);
-
 if(!$result = $db->query('DELETE FROM establishments;')){
 			    print 'There was an error running the delete [' . $db->error . ']' . "\n";
 }
-
-
 	foreach($letters as $letter){
 		
 		$url = 'http://www1.gnb.ca/0601/fseinspectresults.asp?curralpha=' . $letter;
@@ -51,7 +41,6 @@ if(!$result = $db->query('DELETE FROM establishments;')){
 					$pdfPath = str_replace('&nbsp;', '', $row->find('td',5)->find("a", 0)->href); 
 					
 					$insertResult = '';
-
 					if(!empty($resturantName)){
 						
 						
@@ -62,14 +51,11 @@ if(!$result = $db->query('DELETE FROM establishments;')){
 											$db->real_escape_string($city) . '", "' . $db->real_escape_string($inspectionDate) . '", "' . 
 											$db->real_escape_string($colourImage) . '", "' . $db->real_escape_string($reinspectionDate) . '", "' .	
 											$db->real_escape_string($pdfPath) . '");';
-
 						$insertResult = $db->query($insertStatement);
-
 						if(!$insertResult){
 							// print 'Insert statement: ' . $insertStatement . "<br/>\n";
 							print 'Error inserting into the DB ' .  $db->error . "<br/>\n";
 						}
-
 						$historyInsertStatement = 'INSERT INTO establishmentHistory(name, address, city, inspectionDate, colourImage, reinspectionDate, pdfPath) 
 										VALUES("' . 
 										$db->real_escape_string($resturantName) . '", "' . 
@@ -88,21 +74,14 @@ if(!$result = $db->query('DELETE FROM establishments;')){
 		}
 		
 		print '<br/>Working on letter ' . $letter . "<br/> \n";
-
 		$resturantList = array();
 		
 		print '<br/>Finishing establishment list for letter ' . $letter . "\n";
-
 	}
 	}
-
-
 $selectDistinct = 'SELECT DISTINCT inspectionDate, name, address, city FROM establishmentHistory;';
-
 $selectResult = $db->query($selectDistinct);
-
 $deleteId = "";
-
 $resultsArray = array();
 if($selectResult->num_rows > 0){
 	while($databaseResult = $selectResult->fetch_assoc()){
@@ -124,10 +103,6 @@ if($selectResult->num_rows > 0){
 		$deleteResult = $db->query($deleteId);
 	}
 }
-
 $db->close();
-
 print 'Done';
-
-
 ?>

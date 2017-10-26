@@ -9,6 +9,7 @@ if(isset($_GET['token']) && !empty($_GET['token'])){
 	}
 	
 	$databaseResult = $result->fetch_assoc();
+		
 	if($databaseResult['count'] > 0){
 
 		$resturantName = ((isset($_POST['name'])) ? $_POST['name'] : '');
@@ -26,7 +27,10 @@ if(isset($_GET['token']) && !empty($_GET['token'])){
 			);
 
 		$selectedStatuses = array_values(array_intersect(array_keys($statuses), array_keys($_POST)));
+		
 		if(isset($_POST['letter'])){
+			
+			$_SESSION['letter'] = $db->real_escape_string($letter);
 
 			if($_POST['letter'] == "0-9"){
 				$selectResturantByLeter = 'SELECT * FROM establishments WHERE name REGEXP \'^[0-9]\';';
@@ -47,24 +51,28 @@ if(isset($_GET['token']) && !empty($_GET['token'])){
 
 			$db->close();
 		}else{
+			
+			print '1';
+			printf('<pre>%s</pre>', print_r($_POST, true));
+			
 			$selectResturant = 'SELECT * FROM establishments'; //'WHERE name LIKE \'%' . $db->real_escape_string($resturantName) .'%\' AND address LIKE \'%' . $db->real_escape_string($address) . '%\' AND inspectionDate LIKE \'%' . $db->real_escape_string($inspectionDate) . '%\' AND city LIKE \'%' . $db->real_escape_string($city) . '%\'';
 
 			if($resturantName != ''){
-				$selectResturant .= ' WHERE name LIKE \'%' . $db->real_escape_string($resturantName) .'%\'';
+				$selectResturant .= ' WHERE name LIKE \'%' . $db->real_escape_string(trim($resturantName)) .'%\'';
 			}
 
 			if($address != ''){
 				if(strpos($selectResturant, 'WHERE'))
-					$selectResturant .= ' AND address LIKE \'%' . $db->real_escape_string($address) . '%\'';
+					$selectResturant .= ' AND address LIKE \'%' . $db->real_escape_string(trim($address)) . '%\'';
 				else
-					$selectResturant .= ' WHERE address LIKE \'%' . $db->real_escape_string($address) . '%\'';
+					$selectResturant .= ' WHERE address LIKE \'%' . $db->real_escape_string(trim($address)) . '%\'';
 			}
 
 			if($city != ''){
 				if(strpos($selectResturant, 'WHERE'))
-					$selectResturant .= ' AND city LIKE \'%' . $db->real_escape_string($city) . '%\'';
+					$selectResturant .= ' AND city LIKE \'%' . $db->real_escape_string(trim($city)) . '%\'';
 				else
-					$selectResturant .= ' WHERE city LIKE \'%' . $db->real_escape_string($city) . '%\'';
+					$selectResturant .= ' WHERE city LIKE \'%' . $db->real_escape_string(trim($city)) . '%\'';
 			}
 
 			if($inspectionDate != ''){
@@ -89,12 +97,15 @@ if(isset($_GET['token']) && !empty($_GET['token'])){
 			}
 
 			$selectResturant .= ' ORDER BY name, address;';
-
+			
 			if(!$result = $db->query($selectResturant)){
 					die('There was an error running the query [' . $db->error . ']<br/>');
 			}
 
 			$resultsArray = array();
+			
+			printf('<pre>%s</pre>', print_r($result, true));
+			
 			while($databaseResult = $result->fetch_assoc()){
 				$resultsArray[] = $databaseResult;
 			}
@@ -103,7 +114,9 @@ if(isset($_GET['token']) && !empty($_GET['token'])){
 
 			$db->close();
 		}
-		print $jsonString;
+	}else{
+		return http_response_code(403);
 	}
+}else{
+	return http_response_code(403);
 }
-

@@ -31,7 +31,10 @@ $("#getResturants").click(function(){
 		statusCode: {
 		    404: function() {
 		    	alert( "page not found" );
-		    }
+		    },
+			403: function(){
+				document.location.reload(true);
+			}
 		},
 		data: $("#form").serialize(),
 		success: function(data){
@@ -42,7 +45,7 @@ $("#getResturants").click(function(){
 			$("#loading").css("display","none");
 		},
 		error: function(jqXHR, status, error){
-			alert(status + " - " + error);
+			console.log(status + " - " + error);
 		}
 	});	
 	return false;
@@ -55,7 +58,10 @@ $("#letter").change(function(){
 		statusCode: {
 		    404: function() {
 		    	alert( "page not found" );
-		    }
+		    },
+			403: function(){
+				document.location.reload(true);
+			}
 		},
 		data: 'letter=' + $("#letter").val(),
 		success: function(data){
@@ -65,7 +71,7 @@ $("#letter").change(function(){
 			$("#loading").css("display","none");
 		},
 		error: function(jqXHR, status, error){
-			alert(status + " - " + error);
+			console.log(status + " - " + error);
 		}
 	});	
 	return false;
@@ -100,8 +106,8 @@ $(".radio").click(function(event){
 $(".checkbox").click(function(event){
 	var image = event.target;
 	var checkbox = $("#" + $(image).attr("for"));
-	var checkedImageSrc = "https://cdn2.iconfinder.com/data/icons/windows-8-metro-style/26/checked_checkbox.png";
-	var uncheckedImageSrc = "https://cdn2.iconfinder.com/data/icons/windows-8-metro-style/26/unchecked_checkbox.png";
+	var checkedImageSrc = "images/checked_checkbox.png";
+	var uncheckedImageSrc = "images/unchecked_checkbox.png";
 	
 	if($(image).attr("src").includes("unchecked")){
 		$(image).attr("src", checkedImageSrc);
@@ -142,3 +148,41 @@ function buildResturantTable(data, table){
 	
 	return tableString;
 }
+
+function createPDF(pdfId){
+	$.ajax({
+		type: "GET",
+		url: './extractPdf.php',
+		statusCode: {
+		    404: function() {
+		    	alert( "page not found" );
+		    }
+		},
+		data: 'id=' + pdfId,
+		success: function(data){
+			window.open(window.location + data);
+		},
+		error: function(jqXHR, status, error){
+			alert(status + " - " + error);
+		}
+	});	
+
+
+	$.ajax({
+		type: "GET",
+		url: './deletePdf.php',
+		statusCode: {
+			404: function() {
+				alert( "page not found" );
+			}
+		},
+		data: {'id':pdfId, 'delay': 20},
+		success: function(data){
+			
+		},
+		error: function(jqXHR, status, error){
+			alert(status + " - " + error);
+		}
+	});
+}
+
